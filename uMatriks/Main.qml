@@ -1,6 +1,7 @@
 import QtQuick 2.4
 import Ubuntu.Components 1.3
 import Qt.labs.settings 1.0
+import Ubuntu.Content 1.3
 import Matrix 1.0
 
 /*!
@@ -20,6 +21,8 @@ MainView {
 
     width: units.gu(50)
     height: units.gu(90)
+
+    property var transfer
 
 
     property bool initialised: false
@@ -192,6 +195,21 @@ MainView {
                     ]
                 }
 
+                trailingActionBar {
+                    numberOfSlots: 1
+                    actions: [
+                        Action {
+                                id: importImageAction
+                                iconName: "import-image"
+                                text: i18n.tr('image')
+                                onTriggered: {
+                                    pageMain.visible = false;
+                                    mainPageStack.push(pickerPage)
+                                }
+                            }
+                    ]
+                }
+
             }
 
 
@@ -205,6 +223,40 @@ MainView {
                     }
                 }
 //            }
+
+
+                ContentTransferHint {
+                    anchors.fill: parent
+                    activeTransfer: transfer
+                }
+
+                Connections{
+                    target: transfer
+                    onStateChanged: {
+                        if (transfer.state === ContentTransfer.Charged){
+                            image.source = transfer.items[0].url
+                        }
+                    }
+                }
+        }
+
+
+        Page{
+            id: pickerPage
+            title: "Import"
+            visible: false
+
+            ContentPeerPicker{
+                id: picker
+                handler: ContentHandler.Source
+                contentType: ContentType.Pictures
+                showTitle: false
+
+                onPeerSelected: {
+                    transfer = peer.request()
+                    pageStack.pop()
+                }
+            }
         }
 
     }
