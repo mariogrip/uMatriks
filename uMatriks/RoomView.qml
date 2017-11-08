@@ -12,8 +12,8 @@ Page {
     property var completion
 
     function setRoom(room) {
-        console.log("RoomView setting room: "+ room.name)
-	title = room.name
+        console.log("RoomView setting room: "+ room.displayName)
+	      pageHeader.title = room.displayName
         currentRoom = room
         chat.setRoom(room)
     }
