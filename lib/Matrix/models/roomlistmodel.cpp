@@ -22,8 +22,17 @@
 #include <QtGui/QColor>
 #include <QtCore/QDebug>
 
+#include "libqmatrixclient/events/event.h"
+#include "libqmatrixclient/events/callinviteevent.h"
+#include "libqmatrixclient/events/callcandidatesevent.h"
+#include "libqmatrixclient/events/callanswerevent.h"
+#include "libqmatrixclient/events/callhangupevent.h"
 #include "libqmatrixclient/connection.h"
 #include "libqmatrixclient/room.h"
+#include "libqmatrixclient/logging.h"
+
+
+using namespace QMatrixClient;
 
 const int RoomEventStateRole = Qt::UserRole + 1;
 
@@ -48,6 +57,7 @@ void RoomListModel::setConnection(QMatrixClient::Connection* connection)
 
     for( QMatrixClient::Room* room: connection->roomMap().values() ) {
         connect( room, &QMatrixClient::Room::namesChanged, this, &RoomListModel::namesChanged );
+        connect( room, &QMatrixClient::Room::callEvent, this, &RoomListModel::callEventChanged );
         m_rooms.append(room);
     }
     endResetModel();
@@ -72,6 +82,8 @@ void RoomListModel::addRoom(QMatrixClient::Room* room)
     connect( room, &QMatrixClient::Room::namesChanged, this, &RoomListModel::namesChanged );
     connect( room, &QMatrixClient::Room::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
     connect( room, &QMatrixClient::Room::highlightCountChanged, this, &RoomListModel::highlightCountChanged );
+
+    connect( room, &QMatrixClient::Room::callEvent, this, &RoomListModel::callEventChanged );
     m_rooms.append(room);
     endInsertRows();
 }
@@ -134,4 +146,32 @@ void RoomListModel::highlightCountChanged(QMatrixClient::Room* room)
 {
     int row = m_rooms.indexOf(room);
     emit dataChanged(index(row), index(row));
+}
+
+void RoomListModel::callEventChanged(QMatrixClient::Room* room, QMatrixClient::RoomEvent* event) {
+  switch (event->type())
+  {
+      case EventType::CallInvite: {
+        auto callInviteEvent = static_cast<CallInviteEvent*>(event);
+        emit callEvent("invite", room, callInviteEvent->toJson());
+        break;
+      }
+      case EventType::CallCandidates: {
+        auto callCandidatesEvent = static_cast<CallCandidatesEvent*>(event);
+        emit callEvent("candidates", room, callCandidatesEvent->toJson());
+        break;
+      }
+      case EventType::CallAnswer: {
+        auto callAnswerEvent = static_cast<CallAnswerEvent*>(event);
+        qCDebug(MAIN) << callAnswerEvent->toJson();
+        emit callEvent("answer", room, callAnswerEvent->toJson());
+        break;
+      }
+      case EventType::CallHangup: {
+        auto callHangupEvent = static_cast<CallHangupEvent*>(event);
+        emit callEvent("hangup", room, callHangupEvent->toJson());
+        break;
+      }
+      default: /* Ignore events of other types */;
+  }
 }

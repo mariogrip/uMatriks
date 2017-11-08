@@ -31,6 +31,10 @@
 #include "libqmatrixclient/events/roommessageevent.h"
 #include "libqmatrixclient/events/roommemberevent.h"
 #include "libqmatrixclient/events/simplestateevents.h"
+#include "libqmatrixclient/events/callinviteevent.h"
+#include "libqmatrixclient/events/callcandidatesevent.h"
+#include "libqmatrixclient/events/callanswerevent.h"
+#include "libqmatrixclient/events/callhangupevent.h"
 
 using namespace QMatrixClient;
 
@@ -163,6 +167,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case EventType::RoomTopic:
             case EventType::Typing:
             case EventType::Receipt:
+            case EventType::CallInvite:
+            case EventType::CallCandidates:
+            case EventType::CallAnswer:
+            case EventType::CallHangup:
                 return "state";
             default:
                 return "unknown";
@@ -253,6 +261,22 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         {
             RoomAliasesEvent* e = static_cast<RoomAliasesEvent*>(event);
             return QString("Current aliases: %1").arg(e->aliases().join(", "));
+        }
+        if( event->type() == EventType::CallInvite )
+        {
+            return "CallInvite";
+        }
+        if( event->type() == EventType::CallCandidates )
+        {
+            return "CallCandidates";
+        }
+        if( event->type() == EventType::CallAnswer )
+        {
+            return "CallAnswer";
+        }
+        if( event->type() == EventType::CallHangup )
+        {
+            return "CallHangup";
         }
         if( event->type() == EventType::Unknown )
         {

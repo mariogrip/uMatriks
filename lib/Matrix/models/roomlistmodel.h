@@ -21,6 +21,9 @@
 
 #include <QtCore/QAbstractListModel>
 
+#include "events/event.h"
+#include "libqmatrixclient/events/event.h"
+
 namespace QMatrixClient
 {
     class Connection;
@@ -42,11 +45,16 @@ class RoomListModel: public QAbstractListModel
 
         QHash<int, QByteArray> roleNames() const override;
 
+    signals:
+          void callEvent(const QString& type, QMatrixClient::Room* room, const QJsonObject& event);
+
     private slots:
         void namesChanged(QMatrixClient::Room* room);
         void unreadMessagesChanged(QMatrixClient::Room* room);
         void addRoom(QMatrixClient::Room* room);
         void highlightCountChanged(QMatrixClient::Room* room);
+
+        void callEventChanged(QMatrixClient::Room* room, QMatrixClient::RoomEvent* event);
 
     private:
         QMatrixClient::Connection* m_connection;

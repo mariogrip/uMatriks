@@ -5,8 +5,37 @@ import Qt.labs.settings 1.0
 
 Page {
     id: roomView
-    title: i18n.tr("Room")
     visible: false
+
+    header: PageHeader {
+        id: pageHeader
+
+        title: i18n.tr("Room")
+        trailingActionBar {
+            numberOfSlots: 2
+            visible: currentRoom.isCallSupported()
+            actions: [
+                Action {
+                    id: actionCallVideo
+                    iconName: "camcorder"
+                    onTriggered: {
+                        console.log("video call")
+                        roomList.initCallPage(currentRoom);
+                        roomList.placeVideoCall();
+                    }
+                },
+                Action {
+                    id: actionCallVoice
+                    iconName: "call-start"
+                    onTriggered: {
+                        console.log("voice call")
+                        roomList.initCallPage(currentRoom);
+                        roomList.placeVoiceCall();
+                    }
+                }
+            ]
+        }
+    }
 
     property var currentRoom
     property var completion
