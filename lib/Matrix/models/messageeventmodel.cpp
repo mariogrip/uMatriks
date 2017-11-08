@@ -30,8 +30,7 @@
 #include "libqmatrixclient/events/event.h"
 #include "libqmatrixclient/events/roommessageevent.h"
 #include "libqmatrixclient/events/roommemberevent.h"
-#include "libqmatrixclient/events/roomaliasesevent.h"
-#include "libqmatrixclient/events/unknownevent.h"
+#include "libqmatrixclient/events/simplestateevents.h"
 
 using namespace QMatrixClient;
 
@@ -257,9 +256,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::Unknown )
         {
-            return "Unknown Event: ";  // + e->typeString() + "(" + e->content();
+            return "Unknown Event: " + event->originalJsonObject()["type"].toString();
         }
     }
     return QVariant();
 }
-

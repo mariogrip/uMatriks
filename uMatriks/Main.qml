@@ -111,7 +111,7 @@ MainView {
             connection.sync()
         })
 
-        matrixconnect(user, pass)
+        matrixconnect(user, pass, "Ubuntu Touch")
         if(loggedOut)
         {
             pageStack.pop()
